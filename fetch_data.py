@@ -1,5 +1,6 @@
 import requests
 import matplotlib.pyplot as plt
+import math as m
 #import json
 #from pathlib import Path
 
@@ -12,8 +13,6 @@ def data(url):
     assert resp[0]["pages"] == 1, f"paginated: {resp[0]}"
     return resp
 
-
-
 def lead_digit(x):
     x = abs(x)
     while x < 1:
@@ -21,8 +20,6 @@ def lead_digit(x):
     while x >= 10:
         x /= 10
     return int(x)
-
-
 
 def values_list(response, digits):
     values_digit = []
@@ -32,10 +29,20 @@ def values_list(response, digits):
             continue
         values_digit.append(lead_digit(value))
     #print(values_digit)
-    #print(len(values_digit))
+    N = len(values_digit)
+    print(N)
     values = [values_digit.count(i) for i in digits]
     print(values)
-    return values
+    return values, N
+
+def benford(digits, N):
+    ben = [N * m.log10(1 + 1/d) for d in digits]
+    return ben
+
+def chi_sq(values, ben, digits):
+    chi = sum([(values[d-1] - ben[d-1])**2 / ben[d-1] for d in digits])
+    print(chi)
+    return chi
 
 
 
@@ -56,14 +63,26 @@ response_pop = data(url_pop)
 
 
 digits = list(range(1, 10))
-values_list_gdp = values_list(response_gdp, digits)
-values_list_pop = values_list(response_pop, digits)
+values_list_gdp, N_gdp = values_list(response_gdp, digits)
+values_list_pop, N_pop = values_list(response_pop, digits)
+
+benford_gdp = benford(digits, N_gdp)
+benford_pop = benford(digits, N_pop)
+
+chi_gdp = chi_sq(values_list_gdp, benford_gdp, digits)
+chi_pop = chi_sq(values_list_pop, benford_pop, digits)
 
 
 
 fig, ax = plt.subplots()
 width = 0.3
-ax.bar([d + width/2 for d in digits], values_list_gdp, width, label="GDP")
-ax.bar([d - width/2 for d in digits], values_list_pop, width, label="Population")
+ax.bar([d + width/2 for d in digits], values_list_gdp, width, color="blue", alpha=0.6, label="GDP")
+ax.bar([d - width/2 for d in digits], values_list_pop, width, color="orange", alpha=0.6, label="Population")
+ax.plot(digits, benford_gdp, marker="o", color="blue", label="GDP (benford)")
+ax.plot(digits, benford_pop, marker="o", color="orange", label="Population (benford)")
+ax.set_xlabel("Leading digit")
+ax.set_ylabel("Counts")
+ax.set_title("Benford's law vs observation")
+ax.set_xticks(digits)
 ax.legend()
 plt.show()
