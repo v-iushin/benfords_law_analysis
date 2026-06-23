@@ -15,61 +15,46 @@ def data_api(url):
     assert resp[0]["pages"] == 1, f"paginated: {resp[0]}"
     return resp
 
-
-
 def data_csv(path):
+    """Fetch data from CSV file"""
     lines = path.read_text().splitlines()
     reader = csv.reader(lines)
     return reader
 
-
-
 def lead_digit(x):
     """Leading digit of number x"""
     x = abs(x)
-    while x < 1:
-        x *= 10
     while x >= 10:
         x /= 10
     return int(x)
 
 def get_values_api(response):
-    """Collect values from response"""
+    """Collect values from response (api), int list return"""
     values = []
     for i in range(len(response[1])):
         value = response[1][i]["value"]
-        values.append(value)
+        if value is None or int(value) == 0:
+            continue
+        values.append(int(value))
     return values
 
-
-
 def get_values_csv(reader):
+    """Collect values from reader (csv), int list return"""
     header_row = next(reader)
     values = []
     pop_index = header_row.index("population")
-    '''
-    for i, value in enumerate(header_row):
-        if value == "population":
-            pop_index = i
-    '''
     for row in reader:
         if row[pop_index] == "" or int(float(row[pop_index])) == 0:
             continue
         values.append(int(float(row[pop_index])))
     return values
 
-
-
-def values_list(values, digits):
+def values_digit(values, digits):
     """Make list using values for each leading digit"""
-    values_digit = []
-    for value in values:
-        if value is None or value == 0:
-            continue
-        values_digit.append(lead_digit(value))
-    N = len(values_digit)
+    values_dig = [lead_digit(value) for value in values]
+    N = len(values_dig)
     print(f"Valid values N: {N}")
-    counts = [values_digit.count(i) for i in digits]
+    counts = [values_dig.count(i) for i in digits]
     print(f"Counts: {counts}")
     return counts, N
 
@@ -95,6 +80,25 @@ def chi_sq(values, ben, digits):
 
 
 
+def magn(x):
+    return int(m.log10(x))
+
+def magnitude_order(values):
+    values = [abs(value) for value in values]
+    magn_min = int(magn(min(values)))
+    magn_max = int(magn(max(values)))
+    magnitudes = list(range(magn_min, magn_max+1))
+    magns_count = []
+    for magnitude in magnitudes:
+        magn_count = 0
+        for value in values:
+            if magn(value) == magnitude:
+                magn_count += 1
+        magns_count.append(magn_count)
+    return magnitudes, magns_count
+
+
+
 BASE = Path(__file__).parent
 path_cities = BASE/"data/worldcities.csv"
 reader_cities = data_csv(path_cities)
@@ -117,36 +121,62 @@ response_pop = data_api(url_pop)
 digits = list(range(1, 10))
 
 values_cities = get_values_csv(reader_cities)
-values_list_cities, N_cities = values_list(values_cities, digits)
+values_digit_cities, N_cities = values_digit(values_cities, digits)
 benford_cities = benford(digits, N_cities)
-chi_cities = chi_sq(values_list_cities, benford_cities, digits)
+chi_cities = chi_sq(values_digit_cities, benford_cities, digits)
 print()
 
 values_gdp = get_values_api(response_gdp)
-values_list_gdp, N_gdp = values_list(values_gdp, digits)
+values_digit_gdp, N_gdp = values_digit(values_gdp, digits)
 benford_gdp = benford(digits, N_gdp)
-chi_gdp = chi_sq(values_list_gdp, benford_gdp, digits)
+chi_gdp = chi_sq(values_digit_gdp, benford_gdp, digits)
 print()
 
 values_pop = get_values_api(response_pop)
-values_list_pop, N_pop = values_list(values_pop, digits)
+values_digit_pop, N_pop = values_digit(values_pop, digits)
 benford_pop = benford(digits, N_pop)
-chi_pop = chi_sq(values_list_pop, benford_pop, digits)
+chi_pop = chi_sq(values_digit_pop, benford_pop, digits)
 print()
 
 
 
-fig, ax = plt.subplots()
+fig, (ax1, ax2) = plt.subplots(nrows=1, ncols=2, figsize=(12,5))
 width = 0.3
-ax.bar([d + width/2 for d in digits], values_list_gdp, width, color="blue", alpha=0.5, label="GDP")
-ax.bar([d - width/2 for d in digits], values_list_pop, width, color="orange", alpha=0.5, label="Population")
-ax.plot(digits, benford_gdp, marker="o", color="blue", label="GDP (benford)")
-ax.plot(digits, benford_pop, marker="o", color="orange", label="Population (benford)")
-ax.set_xlabel("Leading digit")
-ax.set_ylabel("Counts")
-ax.set_title("Benford's law vs observation")
-ax.set_xticks(digits)
-ax.legend()
+ax1.bar([d + width/2 for d in digits], values_digit_gdp, width, color="blue", alpha=0.5, label="GDP, countires")
+ax1.bar([d - width/2 for d in digits], values_digit_pop, width, color="orange", alpha=0.5, label="Population, countries")
+ax1.plot(digits, benford_gdp, marker="o", color="blue", label="GDP, counties (benford)")
+ax1.plot(digits, benford_pop, marker="o", color="orange", label="Population, countries (benford)")
+ax1.set_xlabel("Leading digit")
+ax1.set_ylabel("Counts")
+ax1.set_title("Benford's law vs observation")
+ax1.set_xticks(digits)
+ax1.legend()
+ax2.bar(digits, values_digit_cities, width, color="green", alpha=0.5, label="Population, cities")
+ax2.plot(digits, benford_cities, marker="o", color="green", label="Population, cities (benford)")
+ax2.set_xlabel("Leading digit")
+ax2.set_ylabel("Counts")
+ax2.set_title("Benford's law vs observation")
+ax2.set_xticks(digits)
+ax2.legend()
 plt.show()
 
-# NO PLOT FOR CITIES FOR NOW
+
+
+magns_cities, magns_count_cities = magnitude_order(values_cities)
+print(magns_cities)
+print(magns_count_cities)
+print()
+magns_gdp, magns_count_gdp = magnitude_order(values_gdp)
+print(magns_gdp)
+print(magns_count_gdp)
+print()
+magns_pop, magns_count_pop = magnitude_order(values_pop)
+print(magns_pop)
+print(magns_count_pop)
+print()
+
+fig, (ax1, ax2, ax3) = plt.subplots(nrows=1, ncols=3, figsize=(17,5))
+ax1.bar(magns_cities, magns_count_cities)
+ax2.bar(magns_gdp, magns_count_gdp)
+ax3.bar(magns_pop, magns_count_pop)
+plt.show()
