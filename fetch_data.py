@@ -28,10 +28,25 @@ def lead_digit(x):
         x /= 10
     return int(x)
 
-def get_values_api(response):
+
+
+#
+def exclude_data(response):
+    exclude_list = []
+    for i in range(len(response[1])):
+        if response[1][i]["region"]["id"] == "NA":
+            exclude_list.append(response[1][i]["id"])
+    return exclude_list
+#
+
+
+
+def get_values_api(response, exclude_list):
     """Collect values from response (api), int list return"""
     values = []
     for i in range(len(response[1])):
+        if response[1][i]["countryiso3code"] in exclude_list:
+            continue
         value = response[1][i]["value"]
         if value is None or int(value) == 0:
             continue
@@ -136,10 +151,18 @@ reader_cities = data_csv(path_cities)
 
 
 
+#
+url_exclude = "https://api.worldbank.org/v2/country/all?format=json&per_page=400"
+response_exclude = data_api(url_exclude)
+exclude_list = exclude_data(response_exclude)
+#
+
+
+
 digits = list(range(1, 10))
 
 print("GDP, countires:")
-values_gdp = get_values_api(response_gdp)
+values_gdp = get_values_api(response_gdp, exclude_list)
 values_digit_gdp, N_gdp = values_digit(values_gdp, digits)
 benford_gdp = benford(digits, N_gdp)
 chi_gdp = chi_sq(values_digit_gdp, benford_gdp, digits)
@@ -147,7 +170,7 @@ sigma_gdp = sigma_log10(values_gdp)
 print()
 
 print("Population, countries:")
-values_pop = get_values_api(response_pop)
+values_pop = get_values_api(response_pop, exclude_list)
 values_digit_pop, N_pop = values_digit(values_pop, digits)
 benford_pop = benford(digits, N_pop)
 chi_pop = chi_sq(values_digit_pop, benford_pop, digits)
@@ -156,7 +179,7 @@ print()
 
 #
 print("Area, countries:")
-values_area = get_values_api(response_area)
+values_area = get_values_api(response_area, exclude_list)
 values_digit_area, N_area = values_digit(values_area, digits)
 benford_area = benford(digits, N_area)
 chi_area = chi_sq(values_digit_area, benford_area, digits)
