@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import math as m
 from pathlib import Path
 import csv
-#import json
+import json
 
 
 
@@ -28,18 +28,13 @@ def lead_digit(x):
         x /= 10
     return int(x)
 
-
-
-#
 def exclude_data(response):
+    """Exclude aggregated data"""
     exclude_list = []
     for i in range(len(response[1])):
         if response[1][i]["region"]["id"] == "NA":
             exclude_list.append(response[1][i]["id"])
     return exclude_list
-#
-
-
 
 def get_values_api(response, exclude_list):
     """Collect values from response (api), int list return"""
@@ -78,28 +73,32 @@ def benford(digits, N):
     ben = [N * m.log10(1 + 1/d) for d in digits]
     return ben
 
-def chi_sq(values, ben, digits):
+def chi_sq(values_dig, ben, digits):
     """Pearson chi-square statistic"""
     crit_v_005 = 15.507
     crit_v_0025 = 17.535
-    chi = sum([(values[d-1] - ben[d-1])**2 / ben[d-1] for d in digits])
-    chi = round(chi, 3)
-    print(f"Chi-square: {chi}")
-    if chi < crit_v_005:
+    chi2 = sum([(values_dig[d-1] - ben[d-1])**2 / ben[d-1] for d in digits])
+    chi2 = round(chi2, 3)
+    print(f"Chi-square: {chi2}")
+    if chi2 < crit_v_005:
         print(f"\tPassed for alpha = 0.05 (critical value: {crit_v_005})")
-    elif chi < crit_v_0025:
+    elif chi2 < crit_v_0025:
         print(f"\tRejected for alpha = 0.05 (critical value: {crit_v_005}) \n\tPassed for alpha = 0.025 (critical value: {crit_v_0025})")
     else:
         print(f"\tRejected for both alpha = 0.05 (critical value: {crit_v_005}) and alpha = 0.025 (critical value: {crit_v_0025})")
-    return chi
+    return chi2
 
-
-
-#
 def magn(x):
+    """
+    1-9: 0
+    10-99: 1
+    100-999: 2
+    ...
+    """
     return int(m.log10(x))
 
 def magnitude_order(values):
+    """Orders of magnitude"""
     values = [abs(value) for value in values]
     magn_min = int(magn(min(values)))
     magn_max = int(magn(max(values)))
@@ -112,17 +111,30 @@ def magnitude_order(values):
                 magn_count += 1
         magns_count.append(magn_count)
     return magnitudes, magns_count
-#
 
-
-
-#
 def sigma_log10(values):
+    """Standart deviation of log_10(x)"""
     logs = [m.log10(abs(value)) for value in values]
     mean = sum(logs) / len(logs)
     sig = m.sqrt(sum((log - mean)**2 for log in logs) / len(logs))
     print(f"Sigma: {round(sig, 2)}")
     return sig
+
+
+
+#
+def analyze(name, values, digits):
+    """Analyze pipeline"""
+    values_dig, N = values_digit(values, digits)
+    ben = benford(digits, N)
+    chi2 = chi_sq(values_dig, ben, digits)
+    sigma = sigma_log10(values)
+    magns, magns_count =  magnitude_order(values)
+    return {
+        "name": name, "counts": values_dig, "N": N, "benford": ben,
+        "chi_sq": chi2, "sigma": sigma,
+        "magnitudes": magns, "magnitude_counts": magns_count
+    }
 #
 
 
@@ -131,31 +143,28 @@ BASE = Path(__file__).parent
 
 url_gdp = "https://api.worldbank.org/v2/country/all/indicator/NY.GDP.MKTP.CD?format=json&per_page=20000&date=1960:2025"
 response_gdp = data_api(url_gdp)
-#readable_response_gdp = json.dumps(response_gdp, indent=4)
-#path_gdp = BASE/"data/gdp.json"
-#path_gdp.write_text(readable_response_gdp)
+readable_response_gdp = json.dumps(response_gdp, indent=4)
+path_gdp = BASE/"data/gdp.json"
+path_gdp.write_text(readable_response_gdp)
 
 url_pop = "https://api.worldbank.org/v2/country/all/indicator/SP.POP.TOTL?format=json&per_page=20000&date=1960:2025"
 response_pop = data_api(url_pop)
-#readable_response_pop = json.dumps(response_pop, indent=4)
-#path_pop = BASE/"data/pop.json"
-#path_pop.write_text(readable_response_pop)
+readable_response_pop = json.dumps(response_pop, indent=4)
+path_pop = BASE/"data/pop.json"
+path_pop.write_text(readable_response_pop)
 
-#
 url_area = "https://api.worldbank.org/v2/country/all/indicator/AG.LND.TOTL.K2?format=json&per_page=300&date=2020"
 response_area = data_api(url_area)
-#
+readable_response_area = json.dumps(response_area, indent=4)
+path_area = BASE/"data/area.json"
+path_area.write_text(readable_response_area)
 
 path_cities = BASE/"data/worldcities.csv"
 reader_cities = data_csv(path_cities)
 
-
-
-#
 url_exclude = "https://api.worldbank.org/v2/country/all?format=json&per_page=400"
 response_exclude = data_api(url_exclude)
 exclude_list = exclude_data(response_exclude)
-#
 
 
 
@@ -165,7 +174,7 @@ print("GDP, countires:")
 values_gdp = get_values_api(response_gdp, exclude_list)
 values_digit_gdp, N_gdp = values_digit(values_gdp, digits)
 benford_gdp = benford(digits, N_gdp)
-chi_gdp = chi_sq(values_digit_gdp, benford_gdp, digits)
+chi2_gdp = chi_sq(values_digit_gdp, benford_gdp, digits)
 sigma_gdp = sigma_log10(values_gdp)
 print()
 
@@ -173,25 +182,23 @@ print("Population, countries:")
 values_pop = get_values_api(response_pop, exclude_list)
 values_digit_pop, N_pop = values_digit(values_pop, digits)
 benford_pop = benford(digits, N_pop)
-chi_pop = chi_sq(values_digit_pop, benford_pop, digits)
+chi2_pop = chi_sq(values_digit_pop, benford_pop, digits)
 sigma_pop = sigma_log10(values_pop)
 print()
 
-#
 print("Area, countries:")
 values_area = get_values_api(response_area, exclude_list)
 values_digit_area, N_area = values_digit(values_area, digits)
 benford_area = benford(digits, N_area)
-chi_area = chi_sq(values_digit_area, benford_area, digits)
+chi2_area = chi_sq(values_digit_area, benford_area, digits)
 sigma_area = sigma_log10(values_area)
 print()
-#
 
 print("Population, cities:")
 values_cities = get_values_csv(reader_cities)
 values_digit_cities, N_cities = values_digit(values_cities, digits)
 benford_cities = benford(digits, N_cities)
-chi_cities = chi_sq(values_digit_cities, benford_cities, digits)
+chi2_cities = chi_sq(values_digit_cities, benford_cities, digits)
 sigma_cities = sigma_log10(values_cities)
 print()
 print()
@@ -200,6 +207,7 @@ print()
 
 fig, (ax1, ax2, ax3) = plt.subplots(nrows=1, ncols=3, figsize=(15,5))
 width = 0.3
+
 ax1.bar([d + width/2 for d in digits], values_digit_gdp, width, color="blue", alpha=0.5, label="GDP, countires")
 ax1.bar([d - width/2 for d in digits], values_digit_pop, width, color="orange", alpha=0.5, label="Population, countries")
 ax1.plot(digits, benford_gdp, marker="o", color="blue", label="GDP, countries (benford)")
@@ -209,7 +217,7 @@ ax1.set_ylabel("Counts")
 ax1.set_title("Benford's law vs observation")
 ax1.set_xticks(digits)
 ax1.legend()
-#
+
 ax2.bar(digits, values_digit_area, width, color="black", alpha=0.5, label="Area, countries")
 ax2.plot(digits, benford_area, marker="o", color="black", label="Area, countries (benford)")
 ax2.set_xlabel("Leading digit")
@@ -217,7 +225,7 @@ ax2.set_ylabel("Counts")
 ax2.set_title("Benford's law vs observation")
 ax2.set_xticks(digits)
 ax2.legend()
-#
+
 ax3.bar(digits, values_digit_cities, width, color="green", alpha=0.5, label="Population, cities")
 ax3.plot(digits, benford_cities, marker="o", color="green", label="Population, cities (benford)")
 ax3.set_xlabel("Leading digit")
@@ -241,13 +249,11 @@ print(magns_pop)
 print(magns_count_pop)
 print()
 
-#
 print("Area, countries:")
 magns_area, magns_count_area = magnitude_order(values_area)
 print(magns_area)
 print(magns_count_area)
 print()
-#
 
 print("Population, cities:")
 magns_cities, magns_count_cities = magnitude_order(values_cities)
@@ -261,6 +267,25 @@ ax2.bar(magns_pop, magns_count_pop)
 ax3.bar(magns_area, magns_count_area)
 ax4.bar(magns_cities, magns_count_cities)
 plt.show()
+
+
+
+#
+print()
+print()
+print()
+datasets = {
+    "GDP": values_gdp, "Population": values_pop, 
+    "Area": values_area, "Cities": values_cities
+}
+results = {
+    name: analyze(name, values, digits) for name, values in datasets.items()
+}
+print()
+print()
+print()
+print(json.dumps(results, indent=4))
+#
 
 
 
