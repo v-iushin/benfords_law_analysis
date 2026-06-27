@@ -70,7 +70,8 @@ def values_digit(values, digits):
 
 def benford(digits, N):
     """Theoretical Benford's value for specific total number of counts"""
-    ben = [N * m.log10(1 + 1/d) for d in digits]
+    #ben = [N * m.log10(1 + 1/d) for d in digits]
+    ben = [round(N * m.log10(1 + 1/d), 2) for d in digits]
     return ben
 
 def chi_sq(values_dig, ben, digits):
@@ -117,7 +118,8 @@ def sigma_log10(values):
     logs = [m.log10(abs(value)) for value in values]
     mean = sum(logs) / len(logs)
     sig = m.sqrt(sum((log - mean)**2 for log in logs) / len(logs))
-    print(f"Sigma: {round(sig, 2)}")
+    sig = round(sig, 2)
+    print(f"Sigma: {sig}")
     return sig
 
 
@@ -129,7 +131,7 @@ def analyze(name, values, digits):
     ben = benford(digits, N)
     chi2 = chi_sq(values_dig, ben, digits)
     sigma = sigma_log10(values)
-    magns, magns_count =  magnitude_order(values)
+    magns, magns_count = magnitude_order(values)
     return {
         "name": name, "counts": values_dig, "N": N, "benford": ben,
         "chi_sq": chi2, "sigma": sigma,
@@ -233,50 +235,56 @@ ax3.set_ylabel("Counts")
 ax3.set_title("Benford's law vs observation")
 ax3.set_xticks(digits)
 ax3.legend()
-plt.show()
+#plt.show()
 
 
 
-print("GDP, countires:")
+#print("GDP, countires:")
 magns_gdp, magns_count_gdp = magnitude_order(values_gdp)
-print(magns_gdp)
-print(magns_count_gdp)
-print()
+#print(magns_gdp)
+#print(magns_count_gdp)
+#print()
 
-print("Population, countries:")
+#print("Population, countries:")
 magns_pop, magns_count_pop = magnitude_order(values_pop)
-print(magns_pop)
-print(magns_count_pop)
-print()
+#print(magns_pop)
+#print(magns_count_pop)
+#print()
 
-print("Area, countries:")
+#print("Area, countries:")
 magns_area, magns_count_area = magnitude_order(values_area)
-print(magns_area)
-print(magns_count_area)
-print()
+#print(magns_area)
+#print(magns_count_area)
+#print()
 
-print("Population, cities:")
+#print("Population, cities:")
 magns_cities, magns_count_cities = magnitude_order(values_cities)
-print(magns_cities)
-print(magns_count_cities)
-print()
+#print(magns_cities)
+#print(magns_count_cities)
+#print()
 
 fig, (ax1, ax2, ax3, ax4) = plt.subplots(nrows=1, ncols=4, figsize=(16,4))
 ax1.bar(magns_gdp, magns_count_gdp)
 ax2.bar(magns_pop, magns_count_pop)
 ax3.bar(magns_area, magns_count_area)
 ax4.bar(magns_cities, magns_count_cities)
-plt.show()
+#plt.show()
 
 
+
+
+#
+crit_v_005 = 15.507
+crit_v_0025 = 17.535
+#
 
 #
 print()
 print()
 print()
 datasets = {
-    "GDP": values_gdp, "Population": values_pop, 
-    "Area": values_area, "Cities": values_cities
+    "GDP, countries": values_gdp, "Population, countries": values_pop, 
+    "Area, countries": values_area, "Population, cities": values_cities
 }
 results = {
     name: analyze(name, values, digits) for name, values in datasets.items()
@@ -284,9 +292,35 @@ results = {
 print()
 print()
 print()
-print(json.dumps(results, indent=4))
+#print(json.dumps(results, indent=4))
 #
+for i in results.keys():
+    print(results[i]["name"])
+    print()
+    print(f"Valid values N: {results[i]["N"]}")
+    print(f"Counts: {results[i]["counts"]}")
+    print(f"Benford: {results[i]["benford"]}")
+    print()
+    chi2 = results[i]["chi_sq"]
+    print(f"Chi-square: {results[i]["chi_sq"]}")
+    if chi2 < crit_v_005:
+        print(f"\tPassed for alpha = 0.05 (critical value: {crit_v_005})")
+    elif chi2 < crit_v_0025:
+        print(f"\tRejected for alpha = 0.05 (critical value: {crit_v_005}) \n\tPassed for alpha = 0.025 (critical value: {crit_v_0025})")
+    else:
+        print(f"\tRejected for both alpha = 0.05 (critical value: {crit_v_005}) and alpha = 0.025 (critical value: {crit_v_0025})")
+    print(f"Sigma: {results[i]["sigma"]}")
+    print()
+    print(f"Magnitudes: {results[i]["magnitudes"]}")
+    print(f"Magnitude counts: {results[i]["magnitude_counts"]}")
+    print()
+    print()
+    print()
 
-
+'''
+        "name": name, "counts": values_dig, "N": N, "benford": ben,
+        "chi_sq": chi2, "sigma": sigma,
+        "magnitudes": magns, "magnitude_counts": magns_count
+'''
 
 print()
