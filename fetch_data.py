@@ -75,7 +75,7 @@ def benford(digits, N):
 def chi_sq(values_dig, ben, digits):
     """Pearson chi-square statistic"""
     chi2 = sum([(values_dig[d-1] - ben[d-1])**2 / ben[d-1] for d in digits])
-    chi2 = round(chi2, 3)
+    chi2 = round(chi2, 2)
     return chi2
 
 def magn(x):
@@ -107,10 +107,10 @@ def sigma_log10(values):
     logs = [m.log10(abs(value)) for value in values]
     mean = sum(logs) / len(logs)
     sig = m.sqrt(sum((log - mean)**2 for log in logs) / len(logs))
-    sig = round(sig, 3)
+    sig = round(sig, 2)
     return sig
 
-def analyze(name, values, digits):
+def analyze(name, values, digits, color):
     """Analyze pipeline"""
     values_dig, N = values_digit(values, digits)
     ben = benford(digits, N)
@@ -120,12 +120,22 @@ def analyze(name, values, digits):
     return {
         "name": name, "counts": values_dig, "N": N, "benford": ben,
         "chi_sq": chi2, "sigma": sigma,
-        "magnitudes": magns, "magnitude_counts": magns_count
+        "magnitudes": magns, "magnitude_counts": magns_count,
+        "color": color
     }
 
 
 
+digits = list(range(1, 10))
+crit_v_005 = 15.507
+#crit_v_0025 = 17.535
+
+
+
 BASE = Path(__file__).parent
+
+output_dir = BASE/"output"
+output_dir.mkdir(exist_ok=True)
 
 url_gdp = "https://api.worldbank.org/v2/country/all/indicator/NY.GDP.MKTP.CD?format=json&per_page=20000&date=1960:2025"
 response_gdp = data_api(url_gdp)
@@ -154,26 +164,27 @@ exclude_list = exclude_data(response_exclude)
 
 
 
-digits = list(range(1, 10))
-crit_v_005 = 15.507
-crit_v_0025 = 17.535
-
-
-
 values_gdp = get_values_api(response_gdp, exclude_list)
 values_pop = get_values_api(response_pop, exclude_list)
 values_area = get_values_api(response_area, exclude_list)
 values_cities = get_values_csv(reader_cities)
 
 datasets = {
-    "GDP, countries": values_gdp, "Population, countries": values_pop, 
-    "Area, countries": values_area, "Population, cities": values_cities
+    "GDP, countries": (values_gdp, "blue"), 
+    "Population, countries": (values_pop, "orange"), 
+    "Area, countries": (values_area, "black"), 
+    "Population, cities": (values_cities, "green")
 }
+
 results = {
-    name: analyze(name, values, digits) for name, values in datasets.items()
+    name: analyze(name, values[0], digits, values[1]) for name, values in datasets.items()
 }
+
+#sigmas = []
+#chi_sqs = []
 for i in results.keys():
     print(results[i]["name"])
+    print(f"Color: {results[i]["color"]}")
     print()
     print(f"Valid values N: {results[i]["N"]}")
     print(f"Counts: {results[i]["counts"]}")
@@ -183,11 +194,15 @@ for i in results.keys():
     print(f"Chi-square: {results[i]["chi_sq"]}")
     if chi2 < crit_v_005:
         print(f"\tPassed for alpha = 0.05 (critical value: {crit_v_005})")
-    elif chi2 < crit_v_0025:
-        print(f"\tRejected for alpha = 0.05 (critical value: {crit_v_005}) \n\tPassed for alpha = 0.025 (critical value: {crit_v_0025})")
+    #elif chi2 < crit_v_0025:
+    #    print(f"\tRejected for alpha = 0.05 (critical value: {crit_v_005}) \n\tPassed for alpha = 0.025 (critical value: {crit_v_0025})")
+    #else:
+    #    print(f"\tRejected for both alpha = 0.05 (critical value: {crit_v_005}) and alpha = 0.025 (critical value: {crit_v_0025})")
     else:
-        print(f"\tRejected for both alpha = 0.05 (critical value: {crit_v_005}) and alpha = 0.025 (critical value: {crit_v_0025})")
+        print(f"\tRejected for both alpha = 0.05 (critical value: {crit_v_005})")
+    #chi_sqs.append(results[i]["chi_sq"])
     print(f"Sigma: {results[i]["sigma"]}")
+    #sigmas.append(results[i]["sigma"])
     print()
     print(f"Magnitudes: {results[i]["magnitudes"]}")
     print(f"Magnitude counts: {results[i]["magnitude_counts"]}")
@@ -203,75 +218,38 @@ for i in results.keys():
 
 
 
-# GDP, countires
-values_digit_gdp, N_gdp = values_digit(values_gdp, digits)
-benford_gdp = benford(digits, N_gdp)
+#colors = ["blue", "orange", "black", "green"]
 
-# Population, countries
-values_digit_pop, N_pop = values_digit(values_pop, digits)
-benford_pop = benford(digits, N_pop)
-
-# Area, countries
-values_digit_area, N_area = values_digit(values_area, digits)
-benford_area = benford(digits, N_area)
-
-# Population, cities
-values_digit_cities, N_cities = values_digit(values_cities, digits)
-benford_cities = benford(digits, N_cities)
-
-
-
-fig, ((ax0, ax1), (ax2, ax3)) = plt.subplots(nrows=2, ncols=2, figsize=(11,7))
-width = 0.3
-
+fig, axs = plt.subplots(nrows=2, ncols=2, figsize=(11,7))
+width = 0.5
 fig.suptitle("Benford's law vs observation")
+for ax, i in zip(axs.flat, results.keys()):
+    ax.bar(digits, results[i]["counts"], width, color=results[i]["color"], alpha=0.5, label=results[i]["name"])
+    ax.plot(digits, results[i]["benford"], marker="o", color=results[i]["color"], label=results[i]["name"]+" (benford)")
+    ax.set_xlabel("Leading digit")
+    ax.set_ylabel("Counts")
+    ax.set_xticks(digits)
+    ax.legend()
+    ax.text(0.5, 0.7, f"Chi-square: {results[i]["chi_sq"]}", transform=ax.transAxes)
+plt.savefig(output_dir/"benford.png", bbox_inches="tight")
+plt.show()
 
-ax0.bar(digits, values_digit_gdp, width, color="blue", alpha=0.5, label="GDP, countires")
-ax0.plot(digits, benford_gdp, marker="o", color="blue", label="GDP, countries (benford)")
-ax0.set_xlabel("Leading digit")
-ax0.set_ylabel("Counts")
-#ax0.set_title("Benford's law vs observation")
-ax0.set_xticks(digits)
-ax0.legend()
-
-ax1.bar(digits, values_digit_pop, width, color="orange", alpha=0.5, label="Population, countries")
-ax1.plot(digits, benford_pop, marker="o", color="orange", label="Population, countries (benford)")
-ax1.set_xlabel("Leading digit")
-ax1.set_ylabel("Counts")
-#ax1.set_title("Benford's law vs observation")
-ax1.set_xticks(digits)
-ax1.legend()
-
-ax2.bar(digits, values_digit_area, width, color="black", alpha=0.5, label="Area, countries")
-ax2.plot(digits, benford_area, marker="o", color="black", label="Area, countries (benford)")
-ax2.set_xlabel("Leading digit")
-ax2.set_ylabel("Counts")
-#ax2.set_title("Benford's law vs observation")
-ax2.set_xticks(digits)
-ax2.legend()
-
-ax3.bar(digits, values_digit_cities, width, color="green", alpha=0.5, label="Population, cities")
-ax3.plot(digits, benford_cities, marker="o", color="green", label="Population, cities (benford)")
-ax3.set_xlabel("Leading digit")
-ax3.set_ylabel("Counts")
-#ax3.set_title("Benford's law vs observation")
-ax3.set_xticks(digits)
-ax3.legend()
+fig, axs = plt.subplots(nrows=2, ncols=2, figsize=(11,7))
+fig.suptitle("Order of magnitudes")
+for ax, i in zip(axs.flat, results.keys()):
+    ax.bar(results[i]["magnitudes"], results[i]["magnitude_counts"], color=results[i]["color"], alpha=0.5)
+    ax.set_xlabel("Magnitude")
+    ax.set_ylabel("Counts")
+    ax.text(0.05, 0.8, f"Sigma: {results[i]["sigma"]}", transform=ax.transAxes)
+fig.savefig(output_dir/"magnitudes.png", bbox_inches="tight")
 plt.show()
 
 
 
-magns_gdp, magns_count_gdp = magnitude_order(values_gdp)
-magns_pop, magns_count_pop = magnitude_order(values_pop)
-magns_area, magns_count_area = magnitude_order(values_area)
-magns_cities, magns_count_cities = magnitude_order(values_cities)
 
-fig, (ax1, ax2, ax3, ax4) = plt.subplots(nrows=1, ncols=4, figsize=(16,4))
-ax1.bar(magns_gdp, magns_count_gdp)
-ax2.bar(magns_pop, magns_count_pop)
-ax3.bar(magns_area, magns_count_area)
-ax4.bar(magns_cities, magns_count_cities)
-#plt.show()
+#print(sigmas)
+#print(chi_sqs)
+
 
 
 
