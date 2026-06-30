@@ -180,18 +180,21 @@ results = {
     name: analyze(name, values[0], digits, values[1]) for name, values in datasets.items()
 }
 
-#sigmas = []
-#chi_sqs = []
+
+sigmas, chi_sqs = [], []
+colors, names = [], []
 for i in results.keys():
     print(results[i]["name"])
-    print(f"Color: {results[i]["color"]}")
+    names.append(results[i]["name"])
+    print(f"Color: {results[i]['color']}")
+    colors.append(results[i]["color"])
     print()
-    print(f"Valid values N: {results[i]["N"]}")
-    print(f"Counts: {results[i]["counts"]}")
-    print(f"Benford: {results[i]["benford"]}")
+    print(f"Valid values N: {results[i]['N']}")
+    print(f"Counts: {results[i]['counts']}")
+    print(f"Benford: {results[i]['benford']}")
     print()
     chi2 = results[i]["chi_sq"]
-    print(f"Chi-square: {results[i]["chi_sq"]}")
+    print(f"Chi-square: {results[i]['chi_sq']}")
     if chi2 < crit_v_005:
         print(f"\tPassed for alpha = 0.05 (critical value: {crit_v_005})")
     #elif chi2 < crit_v_0025:
@@ -200,12 +203,12 @@ for i in results.keys():
     #    print(f"\tRejected for both alpha = 0.05 (critical value: {crit_v_005}) and alpha = 0.025 (critical value: {crit_v_0025})")
     else:
         print(f"\tRejected for both alpha = 0.05 (critical value: {crit_v_005})")
-    #chi_sqs.append(results[i]["chi_sq"])
-    print(f"Sigma: {results[i]["sigma"]}")
-    #sigmas.append(results[i]["sigma"])
+    chi_sqs.append(results[i]["chi_sq"])
+    print(f"Sigma: {results[i]['sigma']}")
+    sigmas.append(results[i]["sigma"])
     print()
-    print(f"Magnitudes: {results[i]["magnitudes"]}")
-    print(f"Magnitude counts: {results[i]["magnitude_counts"]}")
+    print(f"Magnitudes: {results[i]['magnitudes']}")
+    print(f"Magnitude counts: {results[i]['magnitude_counts']}")
     print()
     print()
     print()
@@ -218,7 +221,6 @@ for i in results.keys():
 
 
 
-#colors = ["blue", "orange", "black", "green"]
 
 fig, axs = plt.subplots(nrows=2, ncols=2, figsize=(11,7))
 width = 0.5
@@ -230,7 +232,7 @@ for ax, i in zip(axs.flat, results.keys()):
     ax.set_ylabel("Counts")
     ax.set_xticks(digits)
     ax.legend()
-    ax.text(0.5, 0.7, f"Chi-square: {results[i]["chi_sq"]}", transform=ax.transAxes)
+    ax.text(0.5, 0.7, f"Chi-square: {results[i]['chi_sq']}", transform=ax.transAxes)
 plt.savefig(output_dir/"benford.png", bbox_inches="tight")
 plt.show()
 
@@ -240,15 +242,32 @@ for ax, i in zip(axs.flat, results.keys()):
     ax.bar(results[i]["magnitudes"], results[i]["magnitude_counts"], color=results[i]["color"], alpha=0.5)
     ax.set_xlabel("Magnitude")
     ax.set_ylabel("Counts")
-    ax.text(0.05, 0.8, f"Sigma: {results[i]["sigma"]}", transform=ax.transAxes)
+    ax.text(0.05, 0.8, f"Sigma: {results[i]['sigma']}", transform=ax.transAxes)
 fig.savefig(output_dir/"magnitudes.png", bbox_inches="tight")
 plt.show()
 
 
 
+'''
+print(sigmas)
+print(chi_sqs)
+print(colors)
+'''
 
-#print(sigmas)
-#print(chi_sqs)
+
+fig, ax = plt.subplots()
+
+for chi_sq_, sigma, color, name in zip([m.log10(chi_sq_) for chi_sq_ in chi_sqs], sigmas, colors, names):
+    ax.scatter(chi_sq_, sigma, color=color, label=name)
+#ax.scatter([m.log10(chi_sq_) for chi_sq_ in chi_sqs], sigmas, color=colors)
+ax.set_title("Relationship between Sigma and Chi-square")
+ax.set_xlabel("Log_10 ( Chi-square )")
+ax.set_ylabel("Sigma")
+ax.legend()
+ax.grid(True)
+fig.savefig(output_dir/"sigma-chi.png", bbox_inches="tight")
+plt.show()
+
 
 
 
