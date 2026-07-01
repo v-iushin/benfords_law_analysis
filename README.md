@@ -6,8 +6,6 @@ A statistical investigation of when and why real-world data follows Benford's La
 
 ## Overview
 
-Benford's Law, also known as the First-Digit Law, is the empirical observation that in many real-life numerical datasets, the leading (first) digit distribution is non-uniform and follows:
-
 Benford's Law, also known as the First-Digit Law, is the empirical observation that in many real-life numerical datasets, the distribution of the leading (first) digit is non-uniform, with digit probabilities given by:
 
 $$
@@ -16,7 +14,31 @@ $$
 
 This means the leading digit 1 occurs about 30% of the time, while the digit 9 occurs only about 5% of the time. The law is used in fraud detection because fabricated numbers tend not to follow this pattern.
 
-This small project doesn't just check whether a dataset passes or fails; it investigates why and when it does. The main finding is that whether data follows Benford's Law depends on two independent properties of the dataset:
+This small project doesn't just check whether a dataset passes or fails; it investigates why and when it does. The main finding is that whether data follows Benford's Law depends on two different properties of the dataset:
 
-1. How many orders of magnitude the dataset spans across, measured as $\sigma$ (sigma), the standart deviation of $\log_{10}$ of the values.
-2. Whether the individual observations are statistically independent; $\chi^2$-test can be distorted by correlated data.
+1. How many orders of magnitude the dataset spans across, measured as $\sigma$ (sigma), the standard deviation of $\log_{10}$ of the values.
+2. Whether the individual observations are statistically independent: the results of the $\chi^2$-test can be distorted if the observations are correlated (not independent).
+
+Both matter: even a dataset with enough spread (large $\sigma$) to follow Benford's Law can produce a misleadingly large $\chi^2$ statistic.
+
+
+
+## Method
+
+
+
+## Datasets
+
+
+
+## Results
+
+
+
+## Discussion
+
+
+
+## Limitations
+
+
