@@ -3,9 +3,9 @@
         "page": 1,
         "pages": 1,
         "per_page": 300,
-        "total": 266,
+        "total": 265,
         "sourceid": "2",
-        "lastupdated": "2026-04-08"
+        "lastupdated": "2026-07-01"
     },
     [
         {
@@ -19,7 +19,7 @@
             },
             "countryiso3code": "AFE",
             "date": "2020",
-            "value": 14845090.229,
+            "value": 14856826.529,
             "unit": "",
             "obs_status": "",
             "decimal": 1
@@ -51,7 +51,7 @@
             },
             "countryiso3code": "ARB",
             "date": "2020",
-            "value": 13100549,
+            "value": 13100550,
             "unit": "",
             "obs_status": "",
             "decimal": 1
@@ -67,7 +67,7 @@
             },
             "countryiso3code": "CSS",
             "date": "2020",
-            "value": 398527.61,
+            "value": 412817.61,
             "unit": "",
             "obs_status": "",
             "decimal": 1
@@ -99,7 +99,7 @@
             },
             "countryiso3code": "EAR",
             "date": "2020",
-            "value": 33315046.03,
+            "value": 33315045.03,
             "unit": "",
             "obs_status": "",
             "decimal": 1
@@ -163,7 +163,7 @@
             },
             "countryiso3code": "EMU",
             "date": "2020",
-            "value": 2736151.105,
+            "value": 2836104.105,
             "unit": "",
             "obs_status": "",
             "decimal": 1
@@ -179,7 +179,7 @@
             },
             "countryiso3code": "ECS",
             "date": "2020",
-            "value": 27440780.892,
+            "value": 27431901.302,
             "unit": "",
             "obs_status": "",
             "decimal": 1
@@ -195,7 +195,7 @@
             },
             "countryiso3code": "ECA",
             "date": "2020",
-            "value": 5907730.6,
+            "value": 5907458.01,
             "unit": "",
             "obs_status": "",
             "decimal": 1
@@ -211,7 +211,7 @@
             },
             "countryiso3code": "TEC",
             "date": "2020",
-            "value": 22985330.6,
+            "value": 22985058.01,
             "unit": "",
             "obs_status": "",
             "decimal": 1
@@ -227,23 +227,7 @@
             },
             "countryiso3code": "EUU",
             "date": "2020",
-            "value": 3996659.635,
-            "unit": "",
-            "obs_status": "",
-            "decimal": 1
-        },
-        {
-            "indicator": {
-                "id": "AG.LND.TOTL.K2",
-                "value": "Land area (sq. km)"
-            },
-            "country": {
-                "id": "F1",
-                "value": "Fragile and conflict affected situations"
-            },
-            "countryiso3code": "FCS",
-            "date": "2020",
-            "value": 20454301.229,
+            "value": 3988052.635,
             "unit": "",
             "obs_status": "",
             "decimal": 1
@@ -259,7 +243,7 @@
             },
             "countryiso3code": "HPC",
             "date": "2020",
-            "value": 19394763.229,
+            "value": 19409053.229,
             "unit": "",
             "obs_status": "",
             "decimal": 1
@@ -275,7 +259,7 @@
             },
             "countryiso3code": "",
             "date": "2020",
-            "value": 51980361.192,
+            "value": 51985343.832,
             "unit": "",
             "obs_status": "",
             "decimal": 1
@@ -291,7 +275,7 @@
             },
             "countryiso3code": "IBD",
             "date": "2020",
-            "value": 70770315.423,
+            "value": 70769343.473,
             "unit": "",
             "obs_status": "",
             "decimal": 1
@@ -307,7 +291,7 @@
             },
             "countryiso3code": "IBT",
             "date": "2020",
-            "value": 96059576.262,
+            "value": 96084630.612,
             "unit": "",
             "obs_status": "",
             "decimal": 1
@@ -323,7 +307,7 @@
             },
             "countryiso3code": "IDB",
             "date": "2020",
-            "value": 4903137.61,
+            "value": 4914873.91,
             "unit": "",
             "obs_status": "",
             "decimal": 1
@@ -339,7 +323,7 @@
             },
             "countryiso3code": "IDX",
             "date": "2020",
-            "value": 20386123.229,
+            "value": 20400413.229,
             "unit": "",
             "obs_status": "",
             "decimal": 1
@@ -355,7 +339,7 @@
             },
             "countryiso3code": "IDA",
             "date": "2020",
-            "value": 25289260.839,
+            "value": 25315287.139,
             "unit": "",
             "obs_status": "",
             "decimal": 1
@@ -371,7 +355,7 @@
             },
             "countryiso3code": "LTE",
             "date": "2020",
-            "value": 44521586.403,
+            "value": 44534903.453,
             "unit": "",
             "obs_status": "",
             "decimal": 1
@@ -387,7 +371,7 @@
             },
             "countryiso3code": "LCN",
             "date": "2020",
-            "value": 20043375.63,
+            "value": 20056965.27,
             "unit": "",
             "obs_status": "",
             "decimal": 1
@@ -403,7 +387,7 @@
             },
             "countryiso3code": "LAC",
             "date": "2020",
-            "value": 17893145.63,
+            "value": 18775195.63,
             "unit": "",
             "obs_status": "",
             "decimal": 1
@@ -419,7 +403,7 @@
             },
             "countryiso3code": "TLA",
             "date": "2020",
-            "value": 19918297.63,
+            "value": 19931887.27,
             "unit": "",
             "obs_status": "",
             "decimal": 1
@@ -451,7 +435,7 @@
             },
             "countryiso3code": "LMY",
             "date": "2020",
-            "value": 75953742.862,
+            "value": 77975828.972,
             "unit": "",
             "obs_status": "",
             "decimal": 1
@@ -467,7 +451,7 @@
             },
             "countryiso3code": "",
             "date": "2020",
-            "value": 13616730.829,
+            "value": 14690912.229,
             "unit": "",
             "obs_status": "",
             "decimal": 1
@@ -483,7 +467,7 @@
             },
             "countryiso3code": "",
             "date": "2020",
-            "value": 18696034,
+            "value": 18881257.3,
             "unit": "",
             "obs_status": "",
             "decimal": 1
@@ -499,7 +483,7 @@
             },
             "countryiso3code": "MEA",
             "date": "2020",
-            "value": 12640218,
+            "value": 12640219,
             "unit": "",
             "obs_status": "",
             "decimal": 1
@@ -515,7 +499,7 @@
             },
             "countryiso3code": "MNA",
             "date": "2020",
-            "value": 10057953,
+            "value": 10057954,
             "unit": "",
             "obs_status": "",
             "decimal": 1
@@ -531,7 +515,7 @@
             },
             "countryiso3code": "TMN",
             "date": "2020",
-            "value": 10051933,
+            "value": 10051934,
             "unit": "",
             "obs_status": "",
             "decimal": 1
@@ -547,7 +531,7 @@
             },
             "countryiso3code": "MIC",
             "date": "2020",
-            "value": 62337012.033,
+            "value": 63284916.743,
             "unit": "",
             "obs_status": "",
             "decimal": 1
@@ -595,7 +579,7 @@
             },
             "countryiso3code": "OED",
             "date": "2020",
-            "value": 35508806.265,
+            "value": 35499498.905,
             "unit": "",
             "obs_status": "",
             "decimal": 1
@@ -643,7 +627,7 @@
             },
             "countryiso3code": "PST",
             "date": "2020",
-            "value": 31345475.165,
+            "value": 31336868.165,
             "unit": "",
             "obs_status": "",
             "decimal": 1
@@ -659,7 +643,7 @@
             },
             "countryiso3code": "PRE",
             "date": "2020",
-            "value": 20308679.829,
+            "value": 20320418.129,
             "unit": "",
             "obs_status": "",
             "decimal": 1
@@ -675,7 +659,7 @@
             },
             "countryiso3code": "SST",
             "date": "2020",
-            "value": 737595.61,
+            "value": 751885.61,
             "unit": "",
             "obs_status": "",
             "decimal": 1
@@ -723,7 +707,7 @@
             },
             "countryiso3code": "SSF",
             "date": "2020",
-            "value": 23890860.229,
+            "value": 23902596.529,
             "unit": "",
             "obs_status": "",
             "decimal": 1
@@ -739,7 +723,7 @@
             },
             "countryiso3code": "SSA",
             "date": "2020",
-            "value": 22761828.829,
+            "value": 23902136.529,
             "unit": "",
             "obs_status": "",
             "decimal": 1
@@ -755,7 +739,7 @@
             },
             "countryiso3code": "TSS",
             "date": "2020",
-            "value": 23890860.229,
+            "value": 23902596.529,
             "unit": "",
             "obs_status": "",
             "decimal": 1
@@ -771,7 +755,7 @@
             },
             "countryiso3code": "",
             "date": "2020",
-            "value": 43640978.033,
+            "value": 44403659.443,
             "unit": "",
             "obs_status": "",
             "decimal": 1
@@ -787,7 +771,7 @@
             },
             "countryiso3code": "WLD",
             "date": "2020",
-            "value": 129944725.454,
+            "value": 129961172.804,
             "unit": "",
             "obs_status": "",
             "decimal": 1
